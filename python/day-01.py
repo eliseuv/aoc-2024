@@ -25,7 +25,7 @@ def get_counts(arr: npt.NDArray[np.int64]) -> dict[np.int64, np.int64]:
 
 def main():
     # Read input file to matrix
-    with open("./input", "r") as file:
+    with open("../inputs/day-01.txt", "r") as file:
         matrix = np.array([get_pair(line) for line in file.readlines()], dtype=np.int64)
     print("Input data:\n", matrix)
 
