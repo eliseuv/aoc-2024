@@ -1,4 +1,4 @@
 (executables
  (public_names day01 day02)
  (names day01 day02)
- (libraries aoc2024 core))
+ (libraries aoc2024 base stdio str))
