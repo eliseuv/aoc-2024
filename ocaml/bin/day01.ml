@@ -1,3 +1,5 @@
+open Aoc2024.Utils
+
 let () = print_endline "Advent of Code 2024 day 1"
 
 let part1 (list_left, list_right) =
@@ -11,16 +13,14 @@ let part1 (list_left, list_right) =
        (List.combine sorted_left sorted_right) )
 
 let part2 (list_left, list_right) =
-  let occur_left = Aoc2024.Utils.count_occurences list_left in
+  let occur_left = count_occurences list_left in
   List.fold_left
     (fun sum (value, count) ->
-      sum
-      + (count * value * Aoc2024.Utils.count_value_occurences value list_right)
-      )
+      sum + (count * value * count_value_occurences value list_right) )
     0 occur_left
 
 let solve input_filename =
-  let lists = List.split (Aoc2024.Utils.read_list_of_pairs input_filename) in
+  let lists = List.split (load_2cols input_filename) in
   Stdio.printf "Part 1: Total distance = %d\n" @@ part1 lists ;
   Stdio.printf "Part 2: Similarity score = %d\n" @@ part2 lists
 
