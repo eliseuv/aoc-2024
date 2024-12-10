@@ -6,8 +6,11 @@ import Text.Printf (printf)
 
 isSafe :: (Ord a, Num a) => [a] -> Bool
 isSafe report =
-    let dx_report = diff report
-     in and (allEqual (map signum dx_report) : map (inRange (1, 3) . abs) dx_report)
+    let dx = diff report
+     in and (allEqual (map signum dx) : map (inRange (1, 3) . abs) dx)
+
+-- isSafe' report =
+--     ((allEqual . (map signum)) : (inRange (1, 3) . abs <$>)) . diff
 
 isSafeDampened :: (Ord a, Num a) => [a] -> Bool
 isSafeDampened report = or (isSafe report : map isSafe dampenedCandidates)

@@ -47,9 +47,15 @@ inRange (a, b) x =
 
 -- Generates copy of a given list each copy having a different element from the original list removed
 listRemover :: [a] -> [[a]]
-listRemover list =
+listRemover =
     let
-        remover acc _ [] = acc
-        remover acc before (x : xs) = remover ((reverse before ++ xs) : acc) (x : before) xs
+        helper :: [[a]] -> [a] -> [a] -> [[a]]
+        helper acc _ [] = acc
+        helper acc before (x : xs) = helper ((reverse before ++ xs) : acc) (x : before) xs
      in
-        remover [] [] list
+        helper [] []
+
+-- Tries to convert a list of 2 element into a pair
+toPair :: [a] -> Maybe (a, a)
+toPair [x, y] = Just (x, y)
+toPair _ = Nothing
