@@ -1,16 +1,26 @@
 module MyLib where
 
+import Control.Arrow ((***))
+import Control.Monad (join)
 import Data.List (group, sort, transpose)
 import Data.Maybe (fromJust)
 
--- Read string containing lines of white space separated values as a matrix
-readMatrix :: (Read a) => String -> [[a]]
-readMatrix = map (map read . words) . lines
+mapPair :: (a -> b) -> (a, a) -> (b, b)
+mapPair = join (***)
+
+-- Tries to convert a list of 2 element into a pair
+toPair :: [a] -> Maybe (a, a)
+toPair [x, y] = Just (x, y)
+toPair _ = Nothing
 
 -- Gets the first two elements of a list as a pair
 firstTwo :: [a] -> Maybe (a, a)
 firstTwo (x : y : _) = Just (x, y)
 firstTwo _ = Nothing
+
+-- Read string containing lines of white space separated values as a matrix
+readMatrix :: (Read a) => String -> [[a]]
+readMatrix = map (map read . words) . lines
 
 -- Tries to parse a text containing two white space separated columns into a pair of lists
 read2Cols :: (Read a) => String -> ([a], [a])
@@ -55,7 +65,41 @@ listRemover =
      in
         helper [] []
 
--- Tries to convert a list of 2 element into a pair
-toPair :: [a] -> Maybe (a, a)
-toPair [x, y] = Just (x, y)
-toPair _ = Nothing
+-- Get the `n`-th main diagonal of the matrix considering periodicity
+mainDiagonal :: Int -> [[a]] -> [a]
+mainDiagonal n matrix = zipWith (!!) (map cycle matrix) [n ..]
+
+-- Get the all the main diagonals of the matrix considering periodicity
+mainDiagonals :: [[a]] -> [[a]]
+mainDiagonals matrix =
+    let ncols = length $ head matrix
+     in map (`mainDiagonal` matrix) [0 .. ncols - 1]
+
+-- Get all views of a matrix: rows, columns, main diagonals and secondary diagonals. Considering periodicity
+allViews :: [[a]] -> [[[a]]]
+allViews matrix = map ($ matrix) [id, transpose, mainDiagonals, secondaryDiagonals]
+  where
+    secondaryDiagonals :: [[a]] -> [[a]]
+    secondaryDiagonals = mainDiagonals . map reverse
+
+-- Get the `n`-th main diagonal of the matrix disregarding periodicity
+mainDiagonal' :: Int -> [[a]] -> [a]
+mainDiagonal' n matrix =
+    let ncols = length $ head matrix
+     in map (uncurry (!!)) $ filter ((>= 0) . snd) $ zip matrix [n .. ncols - 1]
+
+-- Get the all the main diagonals of the matrix disregarding periodicity
+mainDiagonals' :: [[a]] -> [[a]]
+mainDiagonals' matrix =
+    let ncols = length $ head matrix
+     in map (`mainDiagonal'` matrix) [-ncols + 1 .. ncols - 1]
+
+secondaryDiagonals' :: [[a]] -> [[a]]
+secondaryDiagonals' = mainDiagonals' . map reverse
+
+-- Get all views of a matrix: rows, columns, main diagonals and secondary diagonals. Disregarding periodicity
+allViews' :: [[a]] -> [[[a]]]
+allViews' matrix = map ($ matrix) [id, transpose, mainDiagonals', secondaryDiagonals]
+  where
+    secondaryDiagonals :: [[a]] -> [[a]]
+    secondaryDiagonals = mainDiagonals' . map reverse
